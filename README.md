@@ -71,11 +71,18 @@ In advanced stages, the focus shifts to improving query performance. Some optimi
 ### Easy Level
 1. Retrieve the names of all tracks that have more than 1 billion streams.
 ```
-
+select * 
+from spotify 
+where stream > 1000000000;
 ``` 
 2. List all albums along with their respective artists.
 ``` 
+select * 
+from spotify 
 
+select distinct artist , album
+from spotify 
+-- group by artist, album;
 ``` 
 
 3. Get the total number of comments for tracks where `licensed = TRUE`.
@@ -166,8 +173,20 @@ where stream_spotify > stream_youtube and stream_youtube > 0
 ### Advanced Level
 1. Find the top 3 most-viewed tracks for each artist using window functions.
 ```
-
-
+WITH ranking_artist
+AS
+(SELECT
+	artist,
+	track,
+	SUM(views) AS total_view,
+	DENSE_RANK() OVER(PARTITION BY artist ORDER BY SUM (views) DESC) as rank
+FROM spotify
+GROUP BY 1,2
+ORDER BY 1, 3 DESC
+)
+SELECT *
+FROM ranking_artist
+WHERE rank <= 3;
 ```
 2. Write a query to find tracks where the liveness score is above the average.
 ```
